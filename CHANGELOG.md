@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## 2026-11-22
+
+### 云端视觉模型模式 + 个人长期记忆（MobiAgent Server）
+
+**涉及文件**：`deployment/server.py`、`deployment/README.md`、`deployment/MEMORY_zh.md`、`deployment/personal_memory.py`、`deployment/run_cloud.ps1`、`deployment/cloud-requirements.txt`、`deployment/test_*.py`、`cloud-config.example.json`、`start-cloud.cmd`、`.gitignore`
+
+#### 新增功能
+
+1. **云端单模型模式**：新增 `--base_url` / `--model` / `--wire_api` 参数，planner、decider、grounder 共用一个 OpenAI 兼容云端模型。截图只需一次模型请求即可同时完成动作选择与元素定位（云端 click 直接返回绝对像素 `bbox`），无需在本地下载模型权重。
+2. **Responses API 支持**：在原有 chat completions 之外支持 `responses` 协议；截图 Base64 统一解包并校验图片格式后生成 data URL；模型输出兼容 JSON 代码块解析。
+3. **个人长期记忆**：新增 `deployment/personal_memory.py`，从用户原话中抽取明确事实与偏好（例如“回学校”自动补全为已保存地址），保留原话依据，支持记住 / 更改 / 查询 / 忘记 / 清空。每个任务只执行一次记忆理解与应用选择；数据保存在本地 `memory/`，重启服务后仍然有效。用法详见 `deployment/MEMORY_zh.md`。
+4. **Windows 一键启动**：新增 `start-cloud.cmd` 与 `deployment/run_cloud.ps1`，从 `cloud-config.json` 读取 API Key 和配置项（不写入命令行），自动创建 `.venv`、安装依赖、检测单台 Android 设备并配置 ADB 端口转发，服务绑定 `127.0.0.1:2333`。
+5. **配置示例**：新增 `cloud-config.example.json`，包含 api_key、base_url、model、wire_api、use_env_proxy、memory_enabled、memory_dir、default_navigation_app 等字段。真实 `cloud-config.json` 含明文密钥，不入库。
+6. **依赖与测试**：新增 `deployment/cloud-requirements.txt` 和 4 个 unittest 测试脚本，覆盖云端连接与超时、记忆证据抽取、服务端记忆流程和个人记忆库。
+
+#### 修改与修复
+
+- `deployment/server.py`：`RequestBody` 新增 `sessionId`；引入任务上下文缓存（LRU，上限 128），纯记忆指令直接回复且首次请求可自动打开应用；click 的 bbox 增加类型、有限性与画面边界校验；云模型超时或连接失败时返回明确提示且保留已有记忆；`done` 与 `terminate` 都会清理任务状态；根接口返回当前模型、协议和记忆开关；新增 `--host` 参数（云端启动脚本固定绑定 `127.0.0.1`，原部署模式仍默认 `0.0.0.0`）。
+- `deployment/README.md`：补充云端模式完整部署说明，包括配置、启动、代理、ADB 端口、超时与隐私注意事项。
+- `.gitignore`：忽略 `.local/`、`cloud-config.json`、`memory/` 及 `memory - 副本/`，防止密钥和个人记忆数据进入仓库。
+
+---
+
 ## 2026-03-30
 
 ### OPT-2：增强回溯验证 + 全路径重播恢复

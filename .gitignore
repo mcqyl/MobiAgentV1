@@ -12,6 +12,10 @@ weights/
 
 utils/experience/BAAI/
 .venv/
+.local/
+/cloud-config.json
+/memory/
+/memory - 副本/
 utils/experience/BAAI/
 utils/experience/all-MiniLM-L6-v2/
 data-*

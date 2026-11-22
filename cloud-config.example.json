@@ -1,0 +1,10 @@
+{
+  "api_key": "<your API key>",
+  "base_url": "https://api.zha1fe1.online/v1",
+  "model": "gpt-6.1-sol",
+  "wire_api": "responses",
+  "use_env_proxy": false,
+  "memory_enabled": true,
+  "memory_dir": "memory",
+  "default_navigation_app": "百度地图"
+}
